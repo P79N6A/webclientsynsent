@@ -42,6 +42,13 @@ public class ChronicleQueueManager {
     public ChronicleQueueManager(final String baseDir) {
         if (baseDir != null) {
             this.baseDirectory = baseDir;
+            try {
+                if (new File("./cqs").exists()) {
+                    FileUtils.deleteDirectory(new File("./cqs"));
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -52,10 +59,8 @@ public class ChronicleQueueManager {
      * @param consumerId     consumer id
      */
     public void setQueue(final String queueDirectory, final String consumerId) {
+
         try {
-            if (new File("./cqs/domains").exists()) {
-                FileUtils.deleteDirectory(new File("./cqs/domains"));
-            }
             if (!new File("./cqs/domains").exists()) {
                 try {
                     ChronicleQueue domains = SingleChronicleQueueBuilder
