@@ -5,6 +5,7 @@ import net.openhft.chronicle.queue.ExcerptAppender;
 import net.openhft.chronicle.queue.ExcerptTailer;
 import net.openhft.chronicle.queue.RollCycles;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -52,6 +53,9 @@ public class ChronicleQueueManager {
      */
     public void setQueue(final String queueDirectory, final String consumerId) {
         try {
+            if (new File("./cqs/domains").exists()) {
+                FileUtils.deleteDirectory(new File("./cqs/domains"));
+            }
             if (!new File("./cqs/domains").exists()) {
                 try {
                     ChronicleQueue domains = SingleChronicleQueueBuilder
