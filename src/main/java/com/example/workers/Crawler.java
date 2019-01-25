@@ -49,12 +49,16 @@ public class Crawler extends AbstractVerticle {
                         .setMaxPoolSize(1));
                 webClient.getAbs(urlToCrawl).send(ar -> {
                     if (ar.succeeded()) {
-                        HttpResponse<Buffer> response = ar.result();
-                        int statusCode = response.statusCode();
-                        if (statusCode == 200) {
-                            message.reply(jo.put("html", response.bodyAsString()));
-                        } else {
-                            message.fail(1000, jo.encode());
+                        try {
+                            HttpResponse<Buffer> response = ar.result();
+                            int statusCode = response.statusCode();
+                            if (statusCode == 200) {
+                                message.reply(jo.put("html", response.bodyAsString()));
+                            } else {
+                                message.fail(1000, jo.encode());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
                     } else {
                         message.fail(1000, jo.encode());
