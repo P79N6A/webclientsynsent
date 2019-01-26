@@ -38,6 +38,7 @@ public class Crawler extends AbstractVerticle {
             try {
                 String urlToCrawl = null;
                 urlToCrawl = jo.getString("url");
+                System.out.println("url:" + urlToCrawl);
                 if (webClient != null) {
                     webClient.close();
                 }
