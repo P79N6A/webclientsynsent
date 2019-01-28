@@ -36,8 +36,7 @@ public class Crawler extends AbstractVerticle {
         vertx.eventBus().<JsonObject>consumer("webClient", message -> {
             JsonObject jo = message.body();
             try {
-                String urlToCrawl = null;
-                urlToCrawl = jo.getString("url");
+                String urlToCrawl = jo.getString("url");
 //                System.out.println("url:" + urlToCrawl);
                 if (webClient != null) {
                     webClient.close();
@@ -46,9 +45,9 @@ public class Crawler extends AbstractVerticle {
                         .setUserAgent("example")
                         .setIdleTimeout(30000)
                         .setConnectTimeout(30000)
+                        .setHttp2KeepAliveTimeout(5)
                         .setKeepAliveTimeout(5)
-                        .setKeepAlive(true)
-                        .setMaxPoolSize(1));
+                );
                 webClient.getAbs(urlToCrawl).send(ar -> {
                     if (ar.succeeded()) {
                         try {
