@@ -18,6 +18,13 @@ public class Crawler extends AbstractVerticle {
 
     @Override
     public void start() {
+        webClient = WebClient.create(vertx, new WebClientOptions()
+                .setUserAgent("example")
+                .setIdleTimeout(3000)
+                .setConnectTimeout(10000)
+                .setHttp2KeepAliveTimeout(5)
+                .setKeepAliveTimeout(5)
+        );
         setWorker();
     }
 
@@ -38,16 +45,6 @@ public class Crawler extends AbstractVerticle {
             try {
                 String urlToCrawl = jo.getString("url");
 //                System.out.println("url:" + urlToCrawl);
-                if (webClient != null) {
-                    webClient.close();
-                }
-                webClient = WebClient.create(vertx, new WebClientOptions()
-                        .setUserAgent("example")
-                        .setIdleTimeout(30000)
-                        .setConnectTimeout(30000)
-                        .setHttp2KeepAliveTimeout(5)
-                        .setKeepAliveTimeout(5)
-                );
                 webClient.getAbs(urlToCrawl).send(ar -> {
                     if (ar.succeeded()) {
                         try {
