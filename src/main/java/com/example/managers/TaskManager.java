@@ -133,7 +133,7 @@ public class TaskManager extends AbstractVerticle {
                     }
                 }
                 if (taskJo.isEmpty()) {
-                    vertx.setTimer(1000, id -> {
+                    vertx.setTimer(30000, id -> {
                         System.out.println("queue is empty. waiting for new element......");
                         vertx.eventBus().send(address, new JsonObject());
                     });
