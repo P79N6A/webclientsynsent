@@ -46,6 +46,7 @@ public class Crawler extends AbstractVerticle {
                         .setUserAgent("example")
                         .setIdleTimeout(30000)
                         .setConnectTimeout(30000)
+                        .setKeepAliveTimeout(1000)
                         .setKeepAlive(false)
                         .setMaxPoolSize(1));
                 webClient.getAbs(urlToCrawl).send(ar -> {
