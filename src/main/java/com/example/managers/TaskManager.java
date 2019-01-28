@@ -139,53 +139,44 @@ public class TaskManager extends AbstractVerticle {
                     });
                 } else {
                     try {
-                        if (mm.getCounter("task.working").getCount() > crawlerCount) {
-                            vertx.setTimer(1000L, id -> {
-                                vertx.eventBus().send(address, taskJo);
-                            });
-                        } else {
-                            mm.getCounter("task.send").inc();
-                            mm.getCounter("task.working").inc();
-                            vertx.eventBus().<JsonObject>send("taskFeed", taskJo
-                                    , new DeliveryOptions().setSendTimeout(120000L), res -> {
-                                        if (res.succeeded()) {
-                                            JsonObject jo = res.result().body();
-                                            mm.getCounter("task.working").dec();
-                                            mm.getCounter("task.finished").inc();
-                                            mm.getMeter("task.finished").mark();
-                                            mm.getCounter("task.succeeded").inc();
-                                            mm.getMeter("task.succeeded").mark();
-                                            domainResultsAppender.writeText(jo.toString());
-                                            vertx.eventBus().send(address, new JsonObject());
-                                        } else {
-                                            mm.getCounter("task.working").dec();
-                                            mm.getCounter("task.finished").inc();
-                                            mm.getMeter("task.finished").mark();
-                                            ReplyException e = (ReplyException) res.cause();
-                                            ReplyFailure rf = e.failureType();
-                                            switch (rf) {
-                                                case RECIPIENT_FAILURE:
-                                                    mm.getCounter("task.failed").inc();
-                                                    vertx.setTimer(1000, id -> {
-                                                        vertx.eventBus().send(address, taskJo);
-                                                    });
-                                                case TIMEOUT:
-                                                    mm.getCounter("task.timeout").inc();
-                                                    mm.getMeter("task.timeout").mark();
-                                                    int delay = new Random().nextInt(10) * ((int) mm.getMeter("task.timeout").getFiveMinuteRate()) / 10;
-                                                    vertx.setTimer(delay <= 0 ? 1000 : delay, id -> {
-                                                        vertx.eventBus().send(address, taskJo);
-                                                    });
-                                                    break;
-                                                default:
-                                                    vertx.setTimer(1000, id -> {
-                                                        vertx.eventBus().send(address, taskJo);
-                                                    });
-                                                    break;
-                                            }
+                        mm.getCounter("task.send").inc();
+                        mm.getCounter("task.working").inc();
+                        vertx.eventBus().<JsonObject>send("taskFeed", taskJo
+                                , new DeliveryOptions().setSendTimeout(120000L), res -> {
+                                    if (res.succeeded()) {
+                                        JsonObject jo = res.result().body();
+                                        mm.getCounter("task.working").dec();
+                                        mm.getCounter("task.finished").inc();
+                                        mm.getCounter("task.succeeded").inc();
+                                        domainResultsAppender.writeText(jo.toString());
+                                        vertx.eventBus().send(address, new JsonObject());
+                                    } else {
+                                        mm.getCounter("task.working").dec();
+                                        mm.getCounter("task.finished").inc();
+                                        ReplyException e = (ReplyException) res.cause();
+                                        ReplyFailure rf = e.failureType();
+                                        switch (rf) {
+                                            case RECIPIENT_FAILURE:
+                                                mm.getCounter("task.failed").inc();
+                                                vertx.setTimer(1000, id -> {
+                                                    vertx.eventBus().send(address, taskJo);
+                                                });
+                                            case TIMEOUT:
+                                                mm.getCounter("task.timeout").inc();
+                                                mm.getMeter("task.timeout").mark();
+                                                int delay = new Random().nextInt(10) * ((int) mm.getMeter("task.timeout").getFiveMinuteRate()) / 10;
+                                                vertx.setTimer(delay <= 0 ? 1000 : delay, id -> {
+                                                    vertx.eventBus().send(address, taskJo);
+                                                });
+                                                break;
+                                            default:
+                                                vertx.setTimer(1000, id -> {
+                                                    vertx.eventBus().send(address, taskJo);
+                                                });
+                                                break;
                                         }
-                                    });
-                        }
+                                    }
+                                });
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
