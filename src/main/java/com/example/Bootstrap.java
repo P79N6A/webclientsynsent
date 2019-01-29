@@ -114,12 +114,6 @@ public final class Bootstrap {
                                 .addServer("8.8.4.4"))
                 .setMetricsOptions(new DropwizardMetricsOptions().setEnabled(true).setRegistryName("gis-registry"));
         vertx = Vertx.vertx(options);
-        vertx.exceptionHandler(new Handler<Throwable>() {
-            @Override
-            public void handle(Throwable event) {
-                logger.error(event + " throws exception: " + event.getStackTrace());
-            }
-        });
         sd = vertx.sharedData();
         configLocalMap = sd.getLocalMap("configLocalMap");
         crawlerCount = configJo.getInteger("crawlerCount");
