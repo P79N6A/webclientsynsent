@@ -108,6 +108,7 @@ public class TaskManager extends AbstractVerticle {
                         + " finished:" + mm.getCounter("task.finished").getCount()
                         + " succeeded:" + mm.getCounter("task.succeeded").getCount()
                         + " timeout:" + mm.getCounter("task.timeout").getCount()
+                        + " recycled:" + mm.getCounter("task.recycled").getCount()
                 );
             } catch (Exception e) {
                 e.printStackTrace();
@@ -140,7 +141,8 @@ public class TaskManager extends AbstractVerticle {
                 } else {
                     try {
                         if (mm.getCounter("task.working").getCount() > crawlerCount) {
-                            vertx.setTimer(1000L, id -> {
+                            vertx.setTimer(30000L, id -> {
+                                mm.getCounter("task.recycled").inc();
                                 vertx.eventBus().send(address, taskJo);
                             });
                         } else {
