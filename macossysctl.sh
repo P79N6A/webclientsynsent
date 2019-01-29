@@ -1,16 +1,17 @@
-sudo sysctl -w kern.ipc.somaxconn=65536
-sudo sysctl -w  net.inet.tcp.win_scale_factor=8
-sudo sysctl -w  net.inet.tcp.autorcvbufmax=33554432
-sudo sysctl -w  net.inet.tcp.autosndbufmax=33554432
-sudo sysctl -w  kern.ipc.maxsockbuf= 4194304
-sudo sysctl -w  net.inet.tcp.sendspace=1042560
-sudo sysctl -w  net.inet.tcp.recvspace=1042560
+sudo sysctl -w kern.ipc.somaxconn=65535
+sudo sysctl -w net.inet.tcp.win_scale_factor=8
+sudo sysctl -w net.inet.tcp.autorcvbufmax=33554432
+sudo sysctl -w net.inet.tcp.autosndbufinc=16384
+sudo sysctl -w net.inet.tcp.autosndbufmax=33554432
+sudo sysctl -w kern.ipc.maxsockbuf= 4194304
+sudo sysctl -w net.inet.tcp.sendspace=1042560
+sudo sysctl -w net.inet.tcp.recvspace=1042560
 # http://coryklein.com/tcp/2015/11/25/custom-configuration-of-tcp-socket-keep-alive-timeouts.html
-sudo sysctl -w  net.inet.tcp.keepidle=5000
-sudo sysctl -w  net.inet.tcp.keepintvl=1000
-sudo sysctl -w  net.inet.tcp.keepcnt=3
-sudo sysctl -w  net.inet.tcp.sack=0
-sudo sysctl -w net.inet.tcp.msl=1000
+sudo sysctl -w net.inet.tcp.keepidle=5000
+sudo sysctl -w net.inet.tcp.keepintvl=1000
+sudo sysctl -w net.inet.tcp.keepcnt=3
+sudo sysctl -w net.inet.tcp.sack=0
+sudo sysctl -w net.inet.tcp.msl=5000
 # https://rerepi.wordpress.com/2008/04/19/tuning-freebsd-sysoev-rit/
 sudo sysctl -w net.inet.tcp.randomize_ports=0
 sudo sysctl -w net.inet.ip.portrange.first=10240
@@ -25,6 +26,10 @@ sudo sysctl -w net.local.stream.sendspace=65535
 sudo sysctl -w net.local.stream.recvspace=65535
 sudo sysctl -w net.local.dgram.maxdgram=65535
 sudo sysctl -w net.local.dgram.recvspace=65535
+# https://czmmiao.iteye.com/blog/1054966
+sudo sysctl -w net.inet.tcp.blackhole=2
+sudo sysctl -w net.inet.udp.blackhole=1
+
 
 # Kernel sysctl configuration file for BSD
 #
