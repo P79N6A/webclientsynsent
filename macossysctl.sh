@@ -11,7 +11,7 @@ sudo sysctl -w net.inet.tcp.keepidle=5000
 sudo sysctl -w net.inet.tcp.keepintvl=1000
 sudo sysctl -w net.inet.tcp.keepcnt=3
 sudo sysctl -w net.inet.tcp.sack=0
-sudo sysctl -w net.inet.tcp.msl=5000
+sudo sysctl -w net.inet.tcp.msl=3000
 # https://rerepi.wordpress.com/2008/04/19/tuning-freebsd-sysoev-rit/
 sudo sysctl -w net.inet.tcp.randomize_ports=0
 sudo sysctl -w net.inet.ip.portrange.first=10240
