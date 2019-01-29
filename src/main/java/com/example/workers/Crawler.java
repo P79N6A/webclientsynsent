@@ -24,7 +24,7 @@ public class Crawler extends AbstractVerticle {
                 .setConnectTimeout(10000)
                 .setHttp2KeepAliveTimeout(5)
                 .setKeepAliveTimeout(5)
-                .setPoolCleanerPeriod(100)
+                .setPoolCleanerPeriod(200)
         );
         setWorker();
     }
