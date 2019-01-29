@@ -102,7 +102,7 @@ public final class Bootstrap {
         // -Dvertx.disableDnsResolver=true
         //
         VertxOptions options = new VertxOptions()
-                .setEventLoopPoolSize(2)
+                .setEventLoopPoolSize(10)
                 .setAddressResolverOptions(
                         new AddressResolverOptions()
                                 .setCacheMinTimeToLive(0)
