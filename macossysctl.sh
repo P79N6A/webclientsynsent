@@ -20,6 +20,11 @@ sudo sysctl -w net.inet.ip.portrange.last=65535
 sudo sysctl -w net.inet.tcp.delayed_ack=0
 sudo sysctl -w net.inet.tcp.mssdflt=1448
 sudo sysctl -w net.inet.tcp.v6mssdflt=1428
+# https://www.cnblogs.com/peipeigang/articles/5455261.html
+sudo sysctl -w net.local.stream.sendspace=65535
+sudo sysctl -w net.local.stream.recvspace=65535
+sudo sysctl -w net.local.dgram.maxdgram=65535
+sudo sysctl -w net.local.dgram.recvspace=65535
 
 # Kernel sysctl configuration file for BSD
 #
