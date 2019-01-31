@@ -61,6 +61,8 @@ public class Crawler extends AbstractVerticle {
                         }
                     } else {
                         message.fail(1000, jo.encode());
+                        System.out.println("ERROR:" + urlToCrawl + ":" + ar.cause().getMessage());
+                        ar.cause().printStackTrace();
                     }
                 });
             } catch (Exception e) {

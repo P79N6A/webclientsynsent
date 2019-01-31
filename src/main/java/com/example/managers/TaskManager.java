@@ -124,7 +124,6 @@ public class TaskManager extends AbstractVerticle {
             final String address = endpoint + i;
             vertx.eventBus().<JsonObject>consumer(address, message -> {
                 message.reply("");
-                //
                 final JsonObject taskJo = message.body();
                 if (taskJo.isEmpty()) {
                     final String domain = cqm.readText("domains", "job1");
