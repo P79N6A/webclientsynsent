@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Map;
 
+import com.example.managers.MetricsManager;
 import com.example.managers.TaskManager;
 import com.example.workers.Crawler;
 import com.example.managers.TaskExecutor;
@@ -74,6 +75,9 @@ public final class Bootstrap {
         instanceName = "macpro";
         parseConfigFile();
         setBoot();
+        vertx.setPeriodic(30000, h -> {
+            logger.info(new MetricsManager(logger, "synsent").getMetricLog());
+        });
     }
 
     /**
