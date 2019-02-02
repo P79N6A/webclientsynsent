@@ -166,11 +166,6 @@
             <version>1.6.4</version>
         </dependency>
         <dependency>
-            <groupId>com.github.jbellis</groupId>
-            <artifactId>jamm</artifactId>
-            <version>0.3.3</version>
-        </dependency>
-        <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>chronicle-queue</artifactId>
             <version>5.17.3</version>
