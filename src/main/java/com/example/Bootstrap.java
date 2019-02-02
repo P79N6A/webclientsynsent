@@ -33,7 +33,7 @@ public final class Bootstrap {
     /**
      * logger.
      */
-    private static Logger logger = LoggerFactory.getLogger("synsent");
+    private static Logger logger = LoggerFactory.getLogger("httpasync");
     /**
      * vertx instant.
      */
@@ -75,9 +75,9 @@ public final class Bootstrap {
         instanceName = "macpro";
         parseConfigFile();
         setBoot();
-        vertx.setPeriodic(30000, h -> {
-            logger.info(new MetricsManager(logger, "synsent").getMetricLog());
-        });
+//        vertx.setPeriodic(30000, h -> {
+//            logger.info(new MetricsManager(logger, "synsent").getMetricLog());
+//        });
     }
 
     /**
