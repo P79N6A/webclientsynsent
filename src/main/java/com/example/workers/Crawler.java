@@ -1,27 +1,11 @@
 package com.example.workers;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.client.utils.URIUtils;
-import org.apache.http.concurrent.FutureCallback;
-import org.apache.http.conn.DnsResolver;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
-import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
-import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
-import org.apache.http.nio.reactor.ConnectingIOReactor;
-
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 
 /**
  * Crawler.
@@ -30,45 +14,26 @@ public class Crawler extends AbstractVerticle {
     /**
      * webclient.
      */
-    private CloseableHttpAsyncClient httpclient = null;
-
-    /**
-     * PoolingNHttpClientConnectionManager.
-     */
-    private PoolingNHttpClientConnectionManager cm = null;
+    private WebClient webClient = null;
 
     @Override
     public void start() {
-        try {
-            // https://hc.apache.org/httpcomponents-asyncclient-4.1.x/httpasyncclient/examples/org/apache/http/examples/nio/client/AsyncClientConfiguration.java
-            ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor();
-            cm = new PoolingNHttpClientConnectionManager(ioReactor);
-            cm.setMaxTotal(1);
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setMaxRedirects(16)
-                    .setRedirectsEnabled(true)
-                    .setRelativeRedirectsAllowed(true)
-                    .setSocketTimeout(5000)
-                    .setConnectTimeout(5000).build();
-            httpclient = HttpAsyncClients.custom()
-                    .setConnectionManager(cm)
-                    .setDefaultRequestConfig(requestConfig)
-                    .build();
-            httpclient.start();
-            setWorker();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        webClient = WebClient.create(vertx, new WebClientOptions()
+                .setUserAgent("example")
+                .setIdleTimeout(3000)
+                .setConnectTimeout(10000)
+                .setHttp2KeepAliveTimeout(5)
+                .setKeepAliveTimeout(5)
+                .setPoolCleanerPeriod(200)
+                .setMaxPoolSize(1)
+        );
+        setWorker();
     }
 
     @Override
     public void stop() {
-        try {
-            if (httpclient != null) {
-                httpclient.close();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (webClient != null) {
+            webClient.close();
         }
     }
 
@@ -79,52 +44,32 @@ public class Crawler extends AbstractVerticle {
     private void setWorker() {
         vertx.eventBus().<JsonObject>consumer("webClient", message -> {
             JsonObject jo = message.body();
-            String urlToCrawl = jo.getString("url");
-//            System.out.println("URL:" + urlToCrawl);
             try {
-                HttpClientContext localContext = HttpClientContext.create();
-                HttpGet request = new HttpGet(urlToCrawl);
-
-                request.setHeader("User-Agent", "gis");
-                Future<org.apache.http.HttpResponse> future = httpclient.execute(request, localContext, new FutureCallback<HttpResponse>() {
-                    @Override
-                    public void completed(final HttpResponse response) {
+                String urlToCrawl = jo.getString("url");
+//                System.out.println("url:" + urlToCrawl);
+                webClient.getAbs(urlToCrawl).send(ar -> {
+                    if (ar.succeeded()) {
                         try {
-                            System.out.println(request.getRequestLine() + "->" + response.getStatusLine());
-                            String result = IOUtils.toString(response.getEntity().getContent(), StandardCharsets.UTF_8);
-                            HttpHost target = localContext.getTargetHost();
-                            List<URI> redirectLocations = localContext.getRedirectLocations();
-                            URI location = URIUtils.resolve(request.getURI(), target, redirectLocations);
-                            cm.closeExpiredConnections();
-                            cm.closeIdleConnections(5, TimeUnit.SECONDS);
-                            message.reply(jo.put("html", result));
+                            HttpResponse<Buffer> response = ar.result();
+                            int statusCode = response.statusCode();
+                            if (statusCode == 200) {
+                                message.reply(jo.put("html", response.bodyAsString()));
+                            } else {
+                                message.fail(1000, jo.encode());
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
-                            cm.closeExpiredConnections();
-                            cm.closeIdleConnections(5, TimeUnit.SECONDS);
-                            message.fail(1000, jo.encode());
                         }
-                    }
-
-                    @Override
-                    public void failed(final Exception ex) {
-                        System.out.println(request.getRequestLine() + "->" + ex);
-                        cm.closeExpiredConnections();
-                        cm.closeIdleConnections(5, TimeUnit.SECONDS);
+                    } else {
                         message.fail(1000, jo.encode());
-                    }
-
-                    @Override
-                    public void cancelled() {
-                        System.out.println(request.getRequestLine() + " cancelled");
-                        cm.closeExpiredConnections();
-                        cm.closeIdleConnections(5, TimeUnit.SECONDS);
-                        message.fail(1000, jo.encode());
+//                        System.out.println("ERROR:" + urlToCrawl + ":" + ar.cause().getMessage());
+//                        ar.cause().printS tackTrace();
                     }
                 });
             } catch (Exception e) {
-                System.out.println("CRAWLER:" + urlToCrawl + ":" + e.getMessage());
                 message.fail(1000, jo.encode());
+                String errorMsg = e.getMessage();
+                System.out.println("CRAWLER:" + errorMsg);
             }
         });
     }

@@ -6,15 +6,15 @@
 
 
     <groupId>com.example</groupId>
-    <artifactId>httpasync</artifactId>
+    <artifactId>synsent</artifactId>
     <packaging>jar</packaging>
     <version>1.0.0</version>
 
-    <name>httpasync</name>
+    <name>synsent</name>
     <url>http://www.example.com</url>
 
     <properties>
-        <vertx.version>3.6.2</vertx.version>
+        <vertx.version>3.6.3</vertx.version>
         <dropwizard.version>4.0.3</dropwizard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gis.version>1.0.0</gis.version>
@@ -225,11 +225,6 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-kqueue</artifactId>
             <version>4.1.33.Final</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpasyncclient</artifactId>
-            <version>4.1.4</version>
         </dependency>
     </dependencies>
     <build>
