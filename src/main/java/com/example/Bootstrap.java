@@ -1,28 +1,24 @@
 package com.example;
 
+import com.example.managers.TaskExecutor;
+import com.example.managers.TaskManager;
+import com.example.workers.Crawler;
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Vertx;
+import io.vertx.core.VertxOptions;
+import io.vertx.core.dns.AddressResolverOptions;
+import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
+import io.vertx.core.shareddata.LocalMap;
+import io.vertx.core.shareddata.SharedData;
+import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Map;
-
-import com.example.managers.MetricsManager;
-import com.example.managers.TaskManager;
-import com.example.workers.Crawler;
-import com.example.managers.TaskExecutor;
-
-import io.vertx.core.Handler;
-import io.vertx.core.dns.AddressResolverOptions;
-import io.vertx.core.shareddata.LocalMap;
-import io.vertx.core.shareddata.SharedData;
-import org.yaml.snakeyaml.Yaml;
-
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Vertx;
-import io.vertx.core.VertxOptions;
-import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
-import io.vertx.ext.dropwizard.DropwizardMetricsOptions;
 
 /**
  * bootstrap the app.
@@ -33,7 +29,7 @@ public final class Bootstrap {
     /**
      * logger.
      */
-    private static Logger logger = LoggerFactory.getLogger("httpasync");
+    private static Logger logger = LoggerFactory.getLogger("synsent");
     /**
      * vertx instant.
      */
@@ -109,13 +105,16 @@ public final class Bootstrap {
                 .setEventLoopPoolSize(1)
                 .setAddressResolverOptions(
                         new AddressResolverOptions()
+                                .setQueryTimeout(30000)
                                 .setCacheMinTimeToLive(0)
                                 .setCacheMaxTimeToLive(0)
                                 .setCacheNegativeTimeToLive(0)
                                 .addServer("8.8.8.8")
-                                .addServer("1.1.1.1")
+                                .addServer("8.8.4.4")
                                 .addServer("9.9.9.9")
-                                .addServer("8.8.4.4"))
+                                .addServer("1.1.1.1")
+                                .addServer("114.114.114.114")
+                )
                 .setMetricsOptions(new DropwizardMetricsOptions().setEnabled(true).setRegistryName("gis-registry"));
         vertx = Vertx.vertx(options);
         sd = vertx.sharedData();
@@ -150,8 +149,7 @@ public final class Bootstrap {
 
         // depoly workers.
         vertx.deployVerticle(Crawler.class.getName(),
-                new DeploymentOptions().setInstances(crawlerCount)
-                        .setConfig(new JsonObject().put("instanceName", instanceName)),
+                new DeploymentOptions().setInstances(crawlerCount),
                 resCrawler -> {
                     if (resCrawler.succeeded()) {
                         logger.info("craweler deployed.");

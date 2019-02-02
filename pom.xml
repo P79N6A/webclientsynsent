@@ -64,10 +64,6 @@
             <exclusions>
                 <exclusion>
                     <groupId>io.netty</groupId>
-                    <artifactId>netty-all</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>io.netty</groupId>
                     <artifactId>netty-resolver</artifactId>
                 </exclusion>
                 <exclusion>
