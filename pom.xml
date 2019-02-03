@@ -14,7 +14,7 @@
     <url>http://www.example.com</url>
 
     <properties>
-        <vertx.version>3.6.2</vertx.version>
+        <vertx.version>3.6.3</vertx.version>
         <dropwizard.version>4.0.3</dropwizard.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <gis.version>1.0.0</gis.version>
