@@ -128,11 +128,11 @@ public class TaskManager extends AbstractVerticle {
                 if (taskJo.isEmpty()) {
                     final String domain = cqm.readText("domains", "job1");
                     if (domain != null) {
-                        taskJo.put("url", "http://www." + domain);
+                        taskJo.put("url", "http://www." + domain).put("host", "www." + domain);
                     }
                 }
                 if (taskJo.isEmpty()) {
-                    vertx.setTimer(30000, id -> {
+                    vertx.setTimer(60000, id -> {
                         System.out.println("queue is empty. waiting for new element......");
                         vertx.eventBus().send(address, new JsonObject());
                     });
@@ -141,7 +141,7 @@ public class TaskManager extends AbstractVerticle {
                         mm.getCounter("task.send").inc();
                         mm.getCounter("task.working").inc();
                         vertx.eventBus().<JsonObject>send("taskFeed", taskJo
-                                , new DeliveryOptions().setSendTimeout(120000L), res -> {
+                                , new DeliveryOptions().setSendTimeout(300000L), res -> {
                                     if (res.succeeded()) {
                                         JsonObject jo = res.result().body();
                                         mm.getCounter("task.working").dec();

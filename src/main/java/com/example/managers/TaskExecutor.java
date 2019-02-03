@@ -57,7 +57,7 @@ public class TaskExecutor extends AbstractVerticle {
 
         String workerEndpoint = workerEndpointFlow[workerEndpointSeq];
         final String endpoint = instanceName + workerEndpoint;
-        vertx.eventBus().<JsonObject>send(endpoint, taskJo, new DeliveryOptions().setSendTimeout(120000), res -> {
+        vertx.eventBus().<JsonObject>send(endpoint, taskJo, new DeliveryOptions().setSendTimeout(300000L), res -> {
             if (res.succeeded()) {
                 final JsonObject jo = res.result().body();
                 if (workerEndpointFlow.length == workerEndpointSeq + 1) {

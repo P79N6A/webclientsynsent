@@ -153,29 +153,26 @@ public final class Bootstrap {
                 resCrawler -> {
                     if (resCrawler.succeeded()) {
                         logger.info("craweler deployed.");
+                        vertx.deployVerticle(TaskExecutor.class.getName(), new DeploymentOptions().setInstances(crawlerCount), resTaskExecutor -> {
+                            if (resTaskExecutor.succeeded()) {
+                                logger.info("TaskExecutor deployed.");
+                                vertx.deployVerticle(TaskManager.class.getName(), new DeploymentOptions().setInstances(1), resTaskManager -> {
+                                    if (resTaskManager.succeeded()) {
+                                        logger.info("Task manager deployed.");
+                                    } else {
+                                        logger.error("Task manager deploy failed:" + resTaskManager.cause().getMessage());
+                                        resTaskManager.cause().printStackTrace();
+                                    }
+                                });
+                            } else {
+                                logger.error("TaskExecutor deploy failed:" + resTaskExecutor.cause().getMessage());
+                                resTaskExecutor.cause().printStackTrace();
+                            }
+                        });
                     } else {
                         logger.error("craweler deploy failed:" + resCrawler.cause().getMessage());
                     }
                 });
-        vertx.deployVerticle(TaskExecutor.class.getName(), new DeploymentOptions().setInstances(crawlerCount), resTaskExecutor -> {
-            if (resTaskExecutor.succeeded()) {
-                logger.info("TaskExecutor deployed.");
-            } else {
-                logger.error("TaskExecutor deploy failed:" + resTaskExecutor.cause().getMessage());
-                resTaskExecutor.cause().printStackTrace();
-            }
-        });
-        vertx.setTimer(3000L, h -> {
-            vertx.deployVerticle(TaskManager.class.getName(), new DeploymentOptions().setInstances(1), resTaskManager -> {
-                if (resTaskManager.succeeded()) {
-                    logger.info("Task manager deployed.");
-                } else {
-                    logger.error("Task manager deploy failed:" + resTaskManager.cause().getMessage());
-                    resTaskManager.cause().printStackTrace();
-                }
-            });
-        });
-
     }
 
     /**
